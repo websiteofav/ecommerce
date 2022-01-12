@@ -1,1 +1,3 @@
-# ecommerce
+# Ecommerce
+
+A Basic ecommrce site 
