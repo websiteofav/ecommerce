@@ -39,12 +39,36 @@ class Electronics {
     '3': 'assets/images/electronic/mobilephone.jpg',
     '4': 'assets/images/electronic/speaker.jpg',
   };
+
   static const electronicImagesName = {
     '0': 'Camera',
     '1': 'Headphone',
     '2': 'Laptop',
-    '3': 'Mobilephone',
+    '3': 'Mobilephones',
     '4': 'Speaker',
+  };
+
+  static const mobileImages = {
+    '0': 'assets/images/electronic/mobiles/mobile1.jpg',
+    '1': 'assets/images/electronic/mobiles/mobile2.jpg',
+    '2': 'assets/images/electronic/mobiles/mobile3.jpg',
+    '3': 'assets/images/electronic/mobiles/mobile4.jpg',
+    '4': 'assets/images/electronic/mobiles/mobile5.jpg',
+  };
+
+  static const mobilePrice = {
+    '0': '10000',
+    '1': '22000',
+    '2': '12345',
+    '3': '100000',
+    '4': '449999',
+  };
+  static const mobileImagesName = {
+    '0': 'ABCD',
+    '1': 'BCDE',
+    '2': 'CDEF',
+    '3': 'DEFG',
+    '4': 'EFGH',
   };
 }
 

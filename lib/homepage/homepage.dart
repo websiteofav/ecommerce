@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:ecommerce/homepage/all_categories.dart';
+import 'package:ecommerce/homepage/categories.dart';
 import 'package:ecommerce/homepage/electronic_auto_scroll.dart';
 import 'package:ecommerce/homepage/offer_page.dart';
 import 'package:ecommerce/homepage/search_bar.dart';
@@ -209,7 +209,7 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               children: const [
                 SearchBar(),
-                AllCategories(),
+                Categories(),
                 OfferPage(),
                 ElectronicsAutoScroll(),
                 Trending()
