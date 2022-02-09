@@ -1,19 +1,28 @@
 import 'dart:convert';
+import 'dart:developer';
 
-import 'package:ecommerce/products_display/model/mobile.dart';
+import 'package:ecommerce/products_display/model/mobile_response_model.dart';
+import 'package:ecommerce/utils/apis.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:sqflite/sqflite.dart' as sql;
 import 'package:path/path.dart' as path;
+import 'package:http/http.dart' as http;
 
 class ProductsRepository {
-  Future<MobileResponse> getData({required table}) async {
-    final db = await getDatabase(table: table);
-    var data = await db.query(table);
+ 
+  final storage = const FlutterSecureStorage();
+  Future<MobileResponseModel> getAllMobiles() async {
+        final token = await storage.read(key: 'token');
+        
+    var response = await http
+        .get(Uri.parse(API.getAllMobiles), headers: {"Authorization": token ?? ''});
+    log(response.body.toString());
 
-    // data = json.decode(data.toString());
+    var data = json.decode(response.body);
 
-    MobileResponse model = MobileResponse.fromJson(data);
-
+    MobileResponseModel model = MobileResponseModel.fromJson(data);
     return model;
+
   }
 
   Future<sql.Database> getDatabase({required table}) async {

@@ -56,20 +56,7 @@ class Electronics {
     '4': 'assets/images/electronic/mobiles/mobile5.jpg',
   };
 
-  static const mobilePrice = {
-    '0': '10000',
-    '1': '22000',
-    '2': '12345',
-    '3': '100000',
-    '4': '449999',
-  };
-  static const mobileImagesName = {
-    '0': 'ABCD',
-    '1': 'BCDE',
-    '2': 'CDEF',
-    '3': 'DEFG',
-    '4': 'EFGH',
-  };
+  static const mobileImagePath = 'assets/images/electronic/mobiles/';
 }
 
 class Fashion {

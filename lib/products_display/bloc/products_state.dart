@@ -8,7 +8,7 @@ class ProductsInitial extends ProductsState {}
 class ProductsLoading extends ProductsState {}
 
 class ProductsLoaded extends ProductsState {
-  final MobileResponse model;
+  final MobileResponseModel model;
 
   ProductsLoaded({required this.model});
 }

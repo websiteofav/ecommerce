@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:ecommerce/products_display/model/mobile.dart';
+import 'package:ecommerce/products_display/model/mobile_response_model.dart';
 import 'package:ecommerce/products_display/repository/product_repository.dart';
 import 'package:meta/meta.dart';
 
@@ -11,14 +11,14 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
   ProductsBloc({required this.repository}) : super(ProductsInitial()) {
     on<ProductsEvent>(
       (event, emit) async {
-        if (event is getMobileData) {
+        if (event is GetAllMobilesEvent) {
           emit(ProductsLoading());
-          MobileResponse model = await repository.getData(table: event.table);
+          MobileResponseModel model = await repository.getAllMobiles();
 
-          if (model.success == null) {
-            emit(ProductsError(message: 'No data found'));
-          } else {
+          if (model.status == 200) {
             emit(ProductsLoaded(model: model));
+          } else {
+            emit(ProductsError(message: model.error));
           }
         }
       },
