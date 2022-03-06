@@ -45,8 +45,7 @@ class AuthRepository {
     return model;
   }
 
-  Future<LoginRegisterResponseModel> register(
-      {timeStamp, jsonPostdata, checkSum}) async {
+  Future<LoginRegisterResponseModel> register({jsonPostdata}) async {
     log(jsonPostdata.toString());
     var response = await http.post(
       Uri.parse(API.register),

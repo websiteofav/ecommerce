@@ -1,10 +1,12 @@
 import 'dart:developer';
 
-import 'package:ecommerce/products_display/model/mobile_response_model.dart';
+import 'package:ecommerce/cart/bloc/cart_bloc.dart';
+import 'package:ecommerce/products_display/models/mobile_response_model.dart';
 import 'package:ecommerce/utils/images.dart';
 import 'package:ecommerce/widgets/category_app_bar.dart';
 import 'package:ecommerce/widgets/message_pop_up.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 class MobileProductDisplay extends StatefulWidget {
@@ -67,16 +69,16 @@ class _MobileProductDisplayState extends State<MobileProductDisplay> {
   }
 
   void handlerPaymentSuccess(PaymentSuccessResponse response) {
-    validationAlert(ctx, 'Payment SuccessFull', 'Success');
+    validationAlert(ctx, 'Payment SuccessFull', from: 'Success');
   }
 
   void handlerPaymentError(PaymentFailureResponse response) {
     // log('GFalire ${response.code.toString()}');
-    validationAlert(ctx, 'Payment Failure', 'Failure');
+    validationAlert(ctx, 'Payment Failure', from: 'Failure');
   }
 
   void handlerExternalWallet(ExternalWalletResponse response) {
-    validationAlert(ctx, 'Payment SuccessFull', 'Success');
+    validationAlert(ctx, 'Payment SuccessFull', from: 'Success');
   }
 
   void openCheckout() {
@@ -103,7 +105,12 @@ class _MobileProductDisplayState extends State<MobileProductDisplay> {
 
   void bottomBarOnTap(index) {
     if (index == 0) {
-      log('Same');
+      BlocProvider.of<CartBloc>(context).add(AddItemEvent(
+          name: widget.product.name,
+          price: widget.product.price,
+          realprice: widget.product.realPrice,
+          discount: widget.product.discount,
+          image: widget.product.image));
     } else {
       openCheckout();
     }
@@ -141,302 +148,309 @@ class _MobileProductDisplayState extends State<MobileProductDisplay> {
         ),
         preferredSize: const Size.fromHeight(55.0),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              alignment: Alignment.topRight,
-              child: const IconButton(
-                onPressed: null,
-                icon: Icon(
-                  Icons.favorite,
-                  color: Colors.grey,
+      body: BlocListener<CartBloc, CartState>(
+        listener: (context, state) {
+          if (state is CartError) {
+            validationAlert(context, state.message, from: 'login');
+          }
+          // TODO: implement listener
+        },
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                alignment: Alignment.topRight,
+                child: const IconButton(
+                  onPressed: null,
+                  icon: Icon(
+                    Icons.favorite,
+                    color: Colors.grey,
+                  ),
                 ),
               ),
-            ),
-            SizedBox(
-              width: double.infinity,
-              height: 280,
-              child: Image.asset(
-                '${Electronics.mobileImagePath}${widget.product.image}.jpg',
-                // height: 500,
-                fit: BoxFit.fill,
-
-                // width: 200,
-                // fit: BoxFit.fill,
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(15),
-              child: Text(
-                widget.product.name,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
+              SizedBox(
+                width: double.infinity,
+                height: 280,
+                child: Image.asset(
+                  '${Electronics.mobileImagePath}${widget.product.image}.jpg',
+                  // height: 500,
+                  fit: BoxFit.fill,
+                  // width: 200,
+                  // fit: BoxFit.fill,
                 ),
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(15.0),
-              color: Colors.white,
-              child: RichText(
-                text: TextSpan(
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: '₹ ${widget.product.realPrice.toString()}',
-                      style: const TextStyle(
-                          color: Colors.grey,
-                          decoration: TextDecoration.lineThrough,
-                          backgroundColor: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          letterSpacing: 1),
-                    ),
-                    TextSpan(
-                      text: '   ₹ ${widget.product.price.toString()}',
-                      style: const TextStyle(
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
+              Container(
+                padding: const EdgeInsets.all(15),
+                child: Text(
+                  widget.product.name,
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(15.0),
+                color: Colors.white,
+                child: RichText(
+                  text: TextSpan(
+                    children: <TextSpan>[
+                      TextSpan(
+                        text: '₹ ${widget.product.realPrice.toString()}',
+                        style: const TextStyle(
+                            color: Colors.grey,
+                            decoration: TextDecoration.lineThrough,
+                            backgroundColor: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            letterSpacing: 1),
                       ),
-                    ),
-                    TextSpan(
-                      text: '  (${widget.product.discount}% off)',
-                      style: const TextStyle(
+                      TextSpan(
+                        text: '   ₹ ${widget.product.price.toString()}',
+                        style: const TextStyle(
+                          color: Colors.green,
                           fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Colors.green),
+                          fontSize: 24,
+                        ),
+                      ),
+                      TextSpan(
+                        text: '  (${widget.product.discount}% off)',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Colors.green),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(15.0),
+                child: const Text(
+                  'Key Highlights :',
+                  style: TextStyle(color: Colors.black, fontSize: 22),
+                ),
+              ),
+              Container(
+                height: 50,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    border: const Border(
+                        bottom: BorderSide(color: Colors.black38))),
+                padding: const EdgeInsets.all(15.0),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.memory,
+                      color: Colors.black,
                     ),
+                    Text(
+                      'RAM - 6GB',
+                      style: TextStyle(color: Colors.blue[900], fontSize: 20),
+                    )
                   ],
                 ),
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(15.0),
-              child: const Text(
-                'Key Highlights :',
-                style: TextStyle(color: Colors.black, fontSize: 22),
+              Container(
+                height: 50,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    border: const Border(
+                        bottom: BorderSide(color: Colors.black38))),
+                padding: const EdgeInsets.all(15.0),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.camera,
+                      color: Colors.black,
+                    ),
+                    Text(
+                      'Camera - ${widget.product.camera1}MP + ${widget.product.camera2}MP',
+                      style: TextStyle(color: Colors.blue[900], fontSize: 20),
+                    )
+                  ],
+                ),
               ),
-            ),
-            Container(
-              height: 50,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  border:
-                      const Border(bottom: BorderSide(color: Colors.black38))),
-              padding: const EdgeInsets.all(15.0),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.memory,
-                    color: Colors.black,
-                  ),
-                  Text(
-                    'RAM - 6GB',
-                    style: TextStyle(color: Colors.blue[900], fontSize: 20),
-                  )
-                ],
+              Container(
+                height: 50,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    border: const Border(
+                        bottom: BorderSide(color: Colors.black38))),
+                padding: const EdgeInsets.all(15.0),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.mobile_friendly_sharp,
+                      color: Colors.black,
+                    ),
+                    Text(
+                      'Display - ${widget.product.displaySize} inch',
+                      style: TextStyle(color: Colors.blue[900], fontSize: 20),
+                    )
+                  ],
+                ),
               ),
-            ),
-            Container(
-              height: 50,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  border:
-                      const Border(bottom: BorderSide(color: Colors.black38))),
-              padding: const EdgeInsets.all(15.0),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.camera,
-                    color: Colors.black,
-                  ),
-                  Text(
-                    'Camera - ${widget.product.camera1}MP + ${widget.product.camera2}MP',
-                    style: TextStyle(color: Colors.blue[900], fontSize: 20),
-                  )
-                ],
+              Container(
+                height: 50,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    border: const Border(
+                        bottom: BorderSide(color: Colors.black38))),
+                padding: const EdgeInsets.all(15.0),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.battery_charging_full,
+                      color: Colors.black,
+                    ),
+                    Text(
+                      'Battery - ${widget.product.batteryCapicity} mAh',
+                      style: TextStyle(color: Colors.blue[900], fontSize: 20),
+                    )
+                  ],
+                ),
               ),
-            ),
-            Container(
-              height: 50,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  border:
-                      const Border(bottom: BorderSide(color: Colors.black38))),
-              padding: const EdgeInsets.all(15.0),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.mobile_friendly_sharp,
-                    color: Colors.black,
-                  ),
-                  Text(
-                    'Display - ${widget.product.displaySize} inch',
-                    style: TextStyle(color: Colors.blue[900], fontSize: 20),
-                  )
-                ],
+              Container(
+                padding: const EdgeInsets.all(15.0),
+                child: const Text(
+                  'Other Details :',
+                  style: TextStyle(color: Colors.black, fontSize: 22),
+                ),
               ),
-            ),
-            Container(
-              height: 50,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  border:
-                      const Border(bottom: BorderSide(color: Colors.black38))),
-              padding: const EdgeInsets.all(15.0),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.battery_charging_full,
-                    color: Colors.black,
-                  ),
-                  Text(
-                    'Battery - ${widget.product.batteryCapicity} mAh',
-                    style: TextStyle(color: Colors.blue[900], fontSize: 20),
-                  )
-                ],
+              Container(
+                height: 50,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    color: Colors.lime[100],
+                    border: const Border(
+                        bottom: BorderSide(color: Colors.black38))),
+                padding: const EdgeInsets.only(
+                  left: 15.0,
+                  right: 50,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Network Type',
+                      style: TextStyle(color: Colors.blue[900], fontSize: 20),
+                    ),
+                    Text(
+                      widget.product.networkType,
+                      style: TextStyle(color: Colors.blue[900], fontSize: 20),
+                    )
+                  ],
+                ),
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(15.0),
-              child: const Text(
-                'Other Details :',
-                style: TextStyle(color: Colors.black, fontSize: 22),
+              Container(
+                height: 50,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    color: Colors.lime[100],
+                    border: const Border(
+                        bottom: BorderSide(color: Colors.black38))),
+                padding: const EdgeInsets.only(
+                  left: 15.0,
+                  right: 50,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Storage',
+                      style: TextStyle(color: Colors.blue[900], fontSize: 20),
+                    ),
+                    Text(
+                      '${widget.product.internalStorage} GB',
+                      style: TextStyle(color: Colors.blue[900], fontSize: 20),
+                    )
+                  ],
+                ),
               ),
-            ),
-            Container(
-              height: 50,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  color: Colors.lime[100],
-                  border:
-                      const Border(bottom: BorderSide(color: Colors.black38))),
-              padding: const EdgeInsets.only(
-                left: 15.0,
-                right: 50,
+              Container(
+                height: 50,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    color: Colors.lime[100],
+                    border: const Border(
+                        bottom: BorderSide(color: Colors.black38))),
+                padding: const EdgeInsets.only(
+                  left: 15.0,
+                  right: 50,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Operating System',
+                      style: TextStyle(color: Colors.blue[900], fontSize: 20),
+                    ),
+                    Text(
+                      widget.product.operatingSystem,
+                      style: TextStyle(color: Colors.blue[900], fontSize: 20),
+                    )
+                  ],
+                ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Network Type',
-                    style: TextStyle(color: Colors.blue[900], fontSize: 20),
-                  ),
-                  Text(
-                    widget.product.networkType,
-                    style: TextStyle(color: Colors.blue[900], fontSize: 20),
-                  )
-                ],
+              Container(
+                height: 50,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    color: Colors.lime[100],
+                    border: const Border(
+                        bottom: BorderSide(color: Colors.black38))),
+                padding: const EdgeInsets.only(
+                  left: 15.0,
+                  right: 50,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Primary Clock',
+                      style: TextStyle(color: Colors.blue[900], fontSize: 20),
+                    ),
+                    Text(
+                      '${widget.product.clockSpeed} GHz',
+                      style: TextStyle(color: Colors.blue[900], fontSize: 20),
+                    )
+                  ],
+                ),
               ),
-            ),
-            Container(
-              height: 50,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  color: Colors.lime[100],
-                  border:
-                      const Border(bottom: BorderSide(color: Colors.black38))),
-              padding: const EdgeInsets.only(
-                left: 15.0,
-                right: 50,
+              Container(
+                height: 50,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    color: Colors.lime[100],
+                    border: const Border(
+                        bottom: BorderSide(color: Colors.black38))),
+                padding: const EdgeInsets.only(
+                  left: 15.0,
+                  right: 50,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Hybrid Sim',
+                      style: TextStyle(color: Colors.blue[900], fontSize: 20),
+                    ),
+                    Text(
+                      widget.product.hybridSimSlot ? 'Yes' : 'No',
+                      style: TextStyle(color: Colors.blue[900], fontSize: 20),
+                    )
+                  ],
+                ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Storage',
-                    style: TextStyle(color: Colors.blue[900], fontSize: 20),
-                  ),
-                  Text(
-                    '${widget.product.internalStorage} GB',
-                    style: TextStyle(color: Colors.blue[900], fontSize: 20),
-                  )
-                ],
-              ),
-            ),
-            Container(
-              height: 50,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  color: Colors.lime[100],
-                  border:
-                      const Border(bottom: BorderSide(color: Colors.black38))),
-              padding: const EdgeInsets.only(
-                left: 15.0,
-                right: 50,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Operating System',
-                    style: TextStyle(color: Colors.blue[900], fontSize: 20),
-                  ),
-                  Text(
-                    widget.product.operatingSystem,
-                    style: TextStyle(color: Colors.blue[900], fontSize: 20),
-                  )
-                ],
-              ),
-            ),
-            Container(
-              height: 50,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  color: Colors.lime[100],
-                  border:
-                      const Border(bottom: BorderSide(color: Colors.black38))),
-              padding: const EdgeInsets.only(
-                left: 15.0,
-                right: 50,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Primary Clock',
-                    style: TextStyle(color: Colors.blue[900], fontSize: 20),
-                  ),
-                  Text(
-                    '${widget.product.clockSpeed} GHz',
-                    style: TextStyle(color: Colors.blue[900], fontSize: 20),
-                  )
-                ],
-              ),
-            ),
-            Container(
-              height: 50,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  color: Colors.lime[100],
-                  border:
-                      const Border(bottom: BorderSide(color: Colors.black38))),
-              padding: const EdgeInsets.only(
-                left: 15.0,
-                right: 50,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Hybrid Sim',
-                    style: TextStyle(color: Colors.blue[900], fontSize: 20),
-                  ),
-                  Text(
-                    widget.product.hybridSimSlot ? 'Yes' : 'No',
-                    style: TextStyle(color: Colors.blue[900], fontSize: 20),
-                  )
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -117,7 +117,7 @@ class _SubCategoryState extends State<SubCategory> {
                             borderRadius:
                                 BorderRadius.all(Radius.circular(10))),
                         padding: const EdgeInsets.all(10),
-                        child: Text(
+                        child: const Text(
                           '',
                           style: const TextStyle(
                             color: Colors.black,

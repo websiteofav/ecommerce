@@ -28,6 +28,10 @@ const cartSchema = new Schema({
         type: String,
         default: 1,
       },
+      image: {
+        type: String,
+        required: true,
+      },
     },
   ],
 });

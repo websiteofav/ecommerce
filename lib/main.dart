@@ -2,6 +2,9 @@ import 'package:ecommerce/auth/bloc/auth_bloc.dart';
 import 'package:ecommerce/auth/repository/auth_repository.dart';
 import 'package:ecommerce/auth/screens/login.dart';
 import 'package:ecommerce/auth/screens/signup.dart';
+import 'package:ecommerce/cart/bloc/cart_bloc.dart';
+import 'package:ecommerce/cart/repository/cart_repository.dart';
+import 'package:ecommerce/cart/screens/cart.dart';
 import 'package:ecommerce/homepage/screens/homepage.dart';
 
 import 'package:ecommerce/products_display/bloc/products_bloc.dart';
@@ -9,6 +12,7 @@ import 'package:ecommerce/products_display/repository/product_repository.dart';
 import 'package:ecommerce/products_display/screens/all_categories.dart';
 import 'package:ecommerce/products_display/screens/all_products_display.dart';
 import 'package:ecommerce/products_display/screens/sub_category.dart';
+import 'package:ecommerce/pwa_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -41,6 +45,11 @@ class MyApp extends StatelessWidget {
             repository: AuthRepository(),
           ),
         ),
+        BlocProvider(
+          create: (context) => CartBloc(
+            repository: CartRepository(),
+          ),
+        ),
       ],
       child: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -69,6 +78,7 @@ class MyApp extends StatelessWidget {
             primarySwatch: Colors.blue,
           ),
           home: isLoggedIn ? const HomePage() : const Login(),
+          // home: const PWATEst(),
           routes: {
             '/login': (context) => const Login(),
             '/signup': (context) => const SignUp(),
@@ -77,9 +87,10 @@ class MyApp extends StatelessWidget {
             '/subCategory': (context) => const SubCategory(
                   category: '',
                 ),
-            '/productDisplay': (context) => AllProductDisplay(
+            '/productDisplay': (context) => const AllProductDisplay(
                   productCategory: '',
                 ),
+            '/cart': (context) => const Cart(),
           },
         ),
       ),

@@ -59,6 +59,10 @@ class Electronics {
   static const mobileImagePath = 'assets/images/electronic/mobiles/';
 }
 
+class ImagePaths {
+  static const productsPath = 'assets/images/products/';
+}
+
 class Fashion {
   static const fashionImages = {
     '0': 'assets/images/fashion/cargo.jpg',

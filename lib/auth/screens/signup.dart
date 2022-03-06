@@ -59,7 +59,7 @@ class _SignUpState extends State<SignUp> {
             } else if (state is AuthError) {
               _loadingOverlay.hide();
 
-              validationAlert(context, state.message, 'signup');
+              validationAlert(context, state.message, from: 'signup');
             } else if (state is AuthLoading) {
               _loadingOverlay.show(context);
             } else if (state is AuthLoaded) {

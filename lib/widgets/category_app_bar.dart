@@ -1,3 +1,4 @@
+import 'package:ecommerce/cart/screens/cart.dart';
 import 'package:ecommerce/utils/device_dimensions.dart';
 import 'package:flutter/material.dart';
 
@@ -20,17 +21,22 @@ class CategoryAppBar extends StatelessWidget {
         category,
         style: const TextStyle(color: Colors.white),
       ),
-      actions: const [
-        IconButton(
+      actions: [
+        const IconButton(
           onPressed: null,
           icon: Icon(
             Icons.notifications,
             color: Colors.white,
           ),
         ),
-        IconButton(
-            icon: Icon(Icons.shopping_cart, color: Colors.white),
-            onPressed: null)
+        category.contains('Cart')
+            ? const Text('')
+            : IconButton(
+                icon: const Icon(Icons.shopping_cart, color: Colors.white),
+                onPressed: () {
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const Cart()));
+                })
       ],
     );
   }

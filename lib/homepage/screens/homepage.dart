@@ -1,4 +1,7 @@
+import 'package:badges/badges.dart';
 import 'package:ecommerce/auth/bloc/auth_bloc.dart';
+import 'package:ecommerce/cart/bloc/cart_bloc.dart';
+import 'package:ecommerce/cart/screens/cart.dart';
 import 'package:ecommerce/homepage/screens/categories.dart';
 import 'package:ecommerce/homepage/screens/electronic_auto_scroll.dart';
 import 'package:ecommerce/homepage/screens/offer_page.dart';
@@ -19,6 +22,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String cartCount = '0';
+  @override
+  void initState() {
+    BlocProvider.of<CartBloc>(context).add(GetCartEvent());
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final dimensions = deviceDimensions(context);
@@ -222,17 +233,49 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
-              actions: const [
-                IconButton(
+              actions: [
+                const IconButton(
                   onPressed: null,
                   icon: Icon(
                     Icons.notifications,
                     color: Colors.white,
+                    size: 35,
                   ),
                 ),
-                IconButton(
-                    icon: Icon(Icons.shopping_cart, color: Colors.white),
-                    onPressed: null)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Badge(
+                    alignment: Alignment.topLeft,
+                    badgeContent: Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: BlocListener<CartBloc, CartState>(
+                        listener: (context, state) {
+                          if (state is CartLoaded) {
+                            setState(() {
+                              cartCount = state.model.success.length.toString();
+                            });
+                          }
+                        },
+                        child: Text(
+                          cartCount,
+                          style: const TextStyle(fontSize: 15),
+                          textAlign: TextAlign.left,
+                        ),
+                      ),
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                    child: IconButton(
+                        icon: const Icon(
+                          Icons.shopping_cart,
+                          color: Colors.white,
+                          size: 35,
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => const Cart()));
+                        }),
+                  ),
+                ),
               ],
             ),
             body: SingleChildScrollView(

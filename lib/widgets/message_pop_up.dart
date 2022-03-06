@@ -1,7 +1,7 @@
 import 'package:ecommerce/utils/device_dimensions.dart';
 import 'package:flutter/material.dart';
 
-validationAlert(BuildContext context, msg, from) {
+validationAlert(BuildContext context, msg, {from}) {
   final dimesions = deviceDimensions(context);
   // Create button
   Widget okButton = TextButton(

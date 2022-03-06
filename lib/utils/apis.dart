@@ -19,4 +19,6 @@ class API {
 
   //Cart
   static const carts = '/cart';
+
+  static const getCart = baseUrl + carts;
 }
