@@ -27,6 +27,11 @@ class CartItemDeleteLoaded extends CartState {
   CartItemDeleteLoaded({required this.model});
 }
 
+class TotalCartItemLoaded extends CartState {
+  final String items;
+  TotalCartItemLoaded({required this.items});
+}
+
 class CartError extends CartState {
   final String message;
   CartError({required this.message});

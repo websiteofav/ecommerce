@@ -33,3 +33,7 @@ class RemoveItemEvent extends CartEvent {
   final String id;
   RemoveItemEvent({required this.id});
 }
+
+class TotalCartItemsEvent extends CartEvent {
+  TotalCartItemsEvent();
+}

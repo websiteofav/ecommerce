@@ -21,6 +21,9 @@ class CartRepository {
     var data = json.decode(response.body);
 
     CartResponseModel model = CartResponseModel.fromJson(data);
+    await storage.write(
+        key: 'cartLength', value: model.success.length.toString());
+
     return model;
   }
 
@@ -43,6 +46,8 @@ class CartRepository {
     var data = json.decode(response.body);
 
     CartResponseModel model = CartResponseModel.fromJson(data);
+    await storage.write(
+        key: 'cartLength', value: model.success.length.toString());
     return model;
   }
 
@@ -76,7 +81,15 @@ class CartRepository {
     var data = json.decode(response.body);
 
     CartResponseModel model = CartResponseModel.fromJson(data);
+    await storage.write(
+        key: 'cartLength', value: model.success.length.toString());
 
     return model;
+  }
+
+  Future<String> getCartLength() async {
+    final itemLength = await storage.read(key: 'cartLength');
+
+    return itemLength ?? '';
   }
 }

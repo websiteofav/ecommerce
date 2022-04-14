@@ -39,7 +39,7 @@ class _LoginState extends State<Login> {
             BlocProvider.of<AuthBloc>(context).add(GetAuthUserEvent());
           } else if (state is AuthError) {
             _loadingOverlay.hide();
-            validationAlert(context, state.message, from: 'login');
+            validationAlert(state.message, context: context, from: 'login');
           } else if (state is AuthLoading) {
             _loadingOverlay.show(context);
           } else if (state is AuthLoaded) {

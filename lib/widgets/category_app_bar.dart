@@ -1,10 +1,25 @@
+import 'package:badges/badges.dart';
+import 'package:ecommerce/cart/bloc/cart_bloc.dart';
 import 'package:ecommerce/cart/screens/cart.dart';
 import 'package:ecommerce/utils/device_dimensions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class CategoryAppBar extends StatelessWidget {
+class CategoryAppBar extends StatefulWidget {
   final String category;
   const CategoryAppBar({Key? key, required this.category}) : super(key: key);
+
+  @override
+  State<CategoryAppBar> createState() => _CategoryAppBarState();
+}
+
+class _CategoryAppBarState extends State<CategoryAppBar> {
+  String cartCount = '';
+
+  @override
+  void initState() {
+    BlocProvider.of<CartBloc>(context).add(TotalCartItemsEvent());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +33,7 @@ class CategoryAppBar extends StatelessWidget {
         fontWeight: FontWeight.bold,
       ),
       title: Text(
-        category,
+        widget.category,
         style: const TextStyle(color: Colors.white),
       ),
       actions: [
@@ -29,14 +44,42 @@ class CategoryAppBar extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-        category.contains('Cart')
+        widget.category.contains('Cart')
             ? const Text('')
-            : IconButton(
-                icon: const Icon(Icons.shopping_cart, color: Colors.white),
-                onPressed: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => const Cart()));
-                })
+            : Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Badge(
+                  alignment: Alignment.topLeft,
+                  badgeContent: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: BlocListener<CartBloc, CartState>(
+                      listener: (context, state) {
+                        if (state is TotalCartItemLoaded) {
+                          setState(() {
+                            cartCount = state.items;
+                          });
+                        }
+                      },
+                      child: Text(
+                        cartCount,
+                        style: const TextStyle(fontSize: 15),
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                  child: IconButton(
+                      icon: const Icon(
+                        Icons.shopping_cart,
+                        color: Colors.white,
+                        size: 35,
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => const Cart()));
+                      }),
+                ),
+              ),
       ],
     );
   }

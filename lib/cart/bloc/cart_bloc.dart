@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
 import 'package:ecommerce/cart/models/cart_response_model.dart';
 import 'package:ecommerce/cart/repository/cart_repository.dart';
@@ -61,6 +63,14 @@ class CartBloc extends Bloc<CartEvent, CartState> {
             emit(CartError(message: model.error));
           }
         } catch (e) {
+          emit(CartError(message: e.toString()));
+        }
+      } else if (event is TotalCartItemsEvent) {
+        try {
+          final String cartLength = await repository.getCartLength();
+          emit(TotalCartItemLoaded(items: cartLength));
+        } catch (e) {
+          log(e.toString());
           emit(CartError(message: e.toString()));
         }
       }

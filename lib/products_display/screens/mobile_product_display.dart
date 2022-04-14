@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:ecommerce/cart/bloc/cart_bloc.dart';
 import 'package:ecommerce/products_display/models/mobile_response_model.dart';
 import 'package:ecommerce/utils/images.dart';
+import 'package:ecommerce/utils/payment.dart';
 import 'package:ecommerce/widgets/category_app_bar.dart';
 import 'package:ecommerce/widgets/message_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,7 @@ class _MobileProductDisplayState extends State<MobileProductDisplay> {
   late BuildContext ctx;
   late Razorpay razorpay;
   final int _currentIndex = 0;
+  late Payment payment;
   static const bottomNavigationBarTheme = BottomNavigationBarThemeData(
     backgroundColor: Colors.white,
     selectedIconTheme: IconThemeData(
@@ -55,10 +57,16 @@ class _MobileProductDisplayState extends State<MobileProductDisplay> {
   @override
   void initState() {
     razorpay = Razorpay();
+
+    Future.delayed(Duration.zero, () {
+      payment = Payment(context: context, razorpay: razorpay);
+      razorpay.on(
+          Razorpay.EVENT_PAYMENT_SUCCESS, payment.handlerPaymentSuccess);
+      razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, payment.handlerPaymentError);
+      razorpay.on(
+          Razorpay.EVENT_EXTERNAL_WALLET, payment.handlerExternalWallet);
+    });
     super.initState();
-    razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, handlerPaymentSuccess);
-    razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, handlerPaymentError);
-    razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, handlerExternalWallet);
   }
 
   @override
@@ -68,40 +76,40 @@ class _MobileProductDisplayState extends State<MobileProductDisplay> {
     razorpay.clear();
   }
 
-  void handlerPaymentSuccess(PaymentSuccessResponse response) {
-    validationAlert(ctx, 'Payment SuccessFull', from: 'Success');
-  }
+  // void handlerPaymentSuccess(PaymentSuccessResponse response) {
+  //   validationAlert('Payment SuccessFull', from: 'Success');
+  // }
 
-  void handlerPaymentError(PaymentFailureResponse response) {
-    // log('GFalire ${response.code.toString()}');
-    validationAlert(ctx, 'Payment Failure', from: 'Failure');
-  }
+  // void handlerPaymentError(PaymentFailureResponse response) {
+  //   // log('GFalire ${response.code.toString()}');
+  //   validationAlert('Payment Failure', from: 'Failure');
+  // }
 
-  void handlerExternalWallet(ExternalWalletResponse response) {
-    validationAlert(ctx, 'Payment SuccessFull', from: 'Success');
-  }
+  // void handlerExternalWallet(ExternalWalletResponse response) {
+  //   validationAlert('Payment SuccessFull', from: 'Success');
+  // }
 
-  void openCheckout() {
-    var options = {
-      "key": "rzp_test_tw2jElwPjXWxdY",
-      "amount": (double.parse(widget.product.price) * 100).toString(),
-      "name": widget.product.name,
-      "description": "Payable Amount",
-      "prefill": {
-        "contact": "1234567890",
-        "email": "test1@gmail.com",
-      },
-      "external": {
-        "wallets": ["paytm"]
-      }
-    };
+  // void openCheckout() {
+  //   var options = {
+  //     "key": "rzp_test_tw2jElwPjXWxdY",
+  //     "amount": (double.parse(widget.product.price) * 100).toString(),
+  //     "name": widget.product.name,
+  //     "description": "Payable Amount",
+  //     "prefill": {
+  //       "contact": "1234567890",
+  //       "email": "test1@gmail.com",
+  //     },
+  //     "external": {
+  //       "wallets": ["paytm"]
+  //     }
+  //   };
 
-    try {
-      razorpay.open(options);
-    } catch (e) {
-      log(e.toString());
-    }
-  }
+  //   try {
+  //     razorpay.open(options);
+  //   } catch (e) {
+  //     log(e.toString());
+  //   }
+  // }
 
   void bottomBarOnTap(index) {
     if (index == 0) {
@@ -112,7 +120,8 @@ class _MobileProductDisplayState extends State<MobileProductDisplay> {
           discount: widget.product.discount,
           image: widget.product.image));
     } else {
-      openCheckout();
+      payment.openCheckout(
+          price: widget.product.price, name: widget.product.name);
     }
   }
 
@@ -151,7 +160,9 @@ class _MobileProductDisplayState extends State<MobileProductDisplay> {
       body: BlocListener<CartBloc, CartState>(
         listener: (context, state) {
           if (state is CartError) {
-            validationAlert(context, state.message, from: 'login');
+            validationAlert(state.message, from: 'login', context: ctx);
+          } else if (state is CartLoaded) {
+            BlocProvider.of<CartBloc>(context).add(TotalCartItemsEvent());
           }
           // TODO: implement listener
         },

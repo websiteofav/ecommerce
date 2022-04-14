@@ -13,6 +13,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -22,12 +25,26 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  static const storage = FlutterSecureStorage();
+
+  late Box box;
+  Future openBox() async {
+    Hive.init('lib');
+    box = await Hive.openBox('data');
+    return box;
+  }
+
   String cartCount = '0';
   @override
   void initState() {
+    initializeCartCount();
     BlocProvider.of<CartBloc>(context).add(GetCartEvent());
 
     super.initState();
+  }
+
+  void initializeCartCount() async {
+    await storage.write(key: 'cartLength', value: '');
   }
 
   @override
@@ -250,9 +267,13 @@ class _HomePageState extends State<HomePage> {
                       padding: const EdgeInsets.all(5.0),
                       child: BlocListener<CartBloc, CartState>(
                         listener: (context, state) {
-                          if (state is CartLoaded) {
+                          if (state is TotalCartItemLoaded) {
+                            // setState(() {
+                            //   cartCount = state.model.success.length.toString();
+                            // });
+
                             setState(() {
-                              cartCount = state.model.success.length.toString();
+                              cartCount = state.items;
                             });
                           }
                         },
@@ -278,15 +299,22 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
-            body: SingleChildScrollView(
-              child: Column(
-                children: const [
-                  SearchBar(),
-                  Categories(),
-                  OfferPage(),
-                  ElectronicsAutoScroll(),
-                  Trending()
-                ],
+            body: BlocListener<CartBloc, CartState>(
+              listener: (context, state) async {
+                if (state is CartLoaded) {
+                  BlocProvider.of<CartBloc>(context).add(TotalCartItemsEvent());
+                }
+              },
+              child: SingleChildScrollView(
+                child: Column(
+                  children: const [
+                    SearchBar(),
+                    Categories(),
+                    OfferPage(),
+                    ElectronicsAutoScroll(),
+                    Trending()
+                  ],
+                ),
               ),
             )),
       ),

@@ -119,7 +119,7 @@ class _SubCategoryState extends State<SubCategory> {
                         padding: const EdgeInsets.all(10),
                         child: const Text(
                           '',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
                             fontSize: 20,

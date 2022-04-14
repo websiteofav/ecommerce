@@ -67,6 +67,8 @@ class _CartState extends State<Cart> {
         body: BlocListener<CartBloc, CartState>(
           listener: (context, state) {
             if (state is CartLoaded) {
+              BlocProvider.of<CartBloc>(context).add(TotalCartItemsEvent());
+
               cartModel = state.model;
             } else if (state is CartError) {
               errorMessage = state.message;
@@ -271,7 +273,7 @@ class _CartState extends State<Cart> {
                                       side: const BorderSide(
                                           color: Colors.black))),
                             ),
-                            onPressed: null,
+                            onPressed: () {},
                             child: const Text(
                               'Place Order',
                               style:
